@@ -18,10 +18,12 @@ class Lazor(self, point_direction):
     #   readblock
     #   gotonext readblock
     #   return all the point crossed
+    # crossed_block
+    #  return all block crossed
     pass
 
 
-def read_maze(fptr):
+def read_puzzle(fptr):
     f = open(fptr, 'r')
     f = f.readlines()
     f = [i.replace('\n', '') for i in f if not i == '\n']
@@ -34,6 +36,7 @@ def read_maze(fptr):
     for i in grid_msg:
         for b in i:
             # putblocks
+            pass
 
     blocks = [0, 0, 0]
     block_type = ['A', 'B', 'C']
@@ -52,11 +55,30 @@ def read_maze(fptr):
     print(blocks)
     print(lazors)
     print(goal)
-    return [grid, blocks, lazors, goal]
+    return grid, blocks, lazors, goal
+
+
+def check_solve(crossed, goal):
+    for i in goal:
+        if i not in crossed:
+            return False
+    return True
 
 
 def slove_puzzle(ftpr):
+    grid, blocks, lazors, goal = read_puzzle()
+    attempt = []
+    lazors = lazor(lazors)
+    crossed = lazors.cross_point()
+    solve = check_solve(crossed, goal)
+    while not solve:
+        cross_block = lazors.cross_block()
+        for poss_block in cross_block:
+            # random select block type
+            # put block
+            # append position
+            pass
     pass
 
 
-read_maze('template/numbered_6 copy.bff')
+read_puzzle('template/numbered_6 copy.bff')
