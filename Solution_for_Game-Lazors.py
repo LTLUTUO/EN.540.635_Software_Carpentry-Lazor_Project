@@ -5,27 +5,33 @@ The code is writen by Tuo Lu and Alex Fan
 import numpy as np
 
 
-class Block(self, block_id):
+#def put Block(block_id, xy):
     # init
     # putblock
     # readblock
-    pass
+    # pass
 
 
-class Lazor(self, point_direction):
+# class Lazor(self, point_direction):
     # init
     # start lazor
     #   readblock
     #   gotonext readblock
     #   return all the point crossed
-    # crossed_block
-    #  return all block crossed
-    pass
+    # # crossed_block
+    # #  return all block crossed
+    # def check_solve(self, goal):
+    #     for i in goal:
+    #         if i not in crossed:
+    #             return False
+    #     return True
+    # pass
 
 
 def read_puzzle(fptr):
     f = open(fptr, 'r')
     f = f.readlines()
+    print(f)
     f = [i.replace('\n', '') for i in f if not i == '\n']
 
     # grid is the slice of list from start to stop
@@ -58,27 +64,18 @@ def read_puzzle(fptr):
     return grid, blocks, lazors, goal
 
 
-def check_solve(crossed, goal):
-    for i in goal:
-        if i not in crossed:
-            return False
-    return True
-
-
-def slove_puzzle(ftpr):
-    grid, blocks, lazors, goal = read_puzzle()
-    attempt = []
-    lazors = lazor(lazors)
-    crossed = lazors.cross_point()
-    solve = check_solve(crossed, goal)
-    while not solve:
-        cross_block = lazors.cross_block()
-        for poss_block in cross_block:
-            # random select block type
-            # put block
-            # append position
-            pass
-    pass
+# def slove_puzzle(ftpr):
+#     grid, blocks, lazors, goal = read_puzzle()
+#     attempt = []
+#     lazors = lazor(lazors)
+#     solve = lazors.check_solve(goal)
+#     while not solve:
+#         cross_block = lazors.cross_block()
+#         for poss_block in cross_block:
+#             # random select block type
+#             # put block
+#             # append position
+#             pass
 
 
 read_puzzle('template/numbered_6 copy.bff')
