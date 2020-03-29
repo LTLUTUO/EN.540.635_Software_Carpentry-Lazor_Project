@@ -12,6 +12,7 @@ import numpy as np
     # pass
 
 
+
 # class Lazor(self, point_direction):
     # init
     # start lazor
