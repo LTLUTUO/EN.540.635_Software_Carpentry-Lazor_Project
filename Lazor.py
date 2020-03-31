@@ -36,26 +36,26 @@ class Lazor(object):
         self.grid = grid
 
         # assign lazor at starting position
-        lazor = start
-        block_corss = []
+        lazor = self.start
+        block_cross = []
         block_position = []
         block_intercept = {(block_position[0], block_position[1] - 1): 'top', (block_position[0], block_position[1] + 1): 'bot',
                            (block_position[0] - 1, block_position[1]): 'left', (block_position[0] + 1, block_position[1]): 'right',}
         function_block = ['A', 'B', 'C']
-        lazor_path = [start]
+        lazor_path = [self.start]
         possible_directions = [[1, -1], [-1, -1], [-1, 1], [1, 1]]
         while lazor in grid:
             # calculate the next point lazor will be
-            lazor_next = [start[0] + direction[0], start[1] + direction [1]]
+            lazor_next = [self.start[0] + self.direction[0], self.start[1] + self.direction [1]]
             # store all lazor path
             lazor_path = [lazor_path, lazor_next]
             # define next_block to be position + a random block type
-            block_type = random.choice('OXABC')
+            block_type = random.choice('oxABC')
             next_block = [block_position, block_type]
-            if next_block[1:] in funciton_block:
-                if next_block[1:] == 'A':
+            if next_block[1] in function_block:
+                if next_block[1] == 'A':
                     # reflect block, change lazor direction
-                    if direction is [1, -1]:
+                    if self.direction is [1, -1]:
                         # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'left':
                             lazor_next = [lazor_next[0] - 1, lazor_next[1] - 1]
@@ -66,7 +66,7 @@ class Lazor(object):
                         # store all crossed blocks and lazor path
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
-                    elif direction is [-1, -1]:
+                    elif self.direction is [-1, -1]:
                          # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'right':
                             lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
@@ -77,7 +77,7 @@ class Lazor(object):
                         # store all crossed blocks and lazor path
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
-                    elif direction is [-1, 1]:
+                    elif self.direction is [-1, 1]:
                         # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'right':
                             lazor_next = [lazor_next[0] + 1, lazor_next[1] + 1]
@@ -88,7 +88,7 @@ class Lazor(object):
                         # store all crossed blocks and lazor path
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
-                    elif direction is [1, 1]:
+                    elif self.direction is [1, 1]:
                         # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'left':
                             lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
@@ -100,9 +100,9 @@ class Lazor(object):
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
                
-                elif next_block[1:] == 'C':
+                elif next_block[1] == 'C':
                     # refract block, reulting two lazor path
-                    if direction is [1, -1]:
+                    if self.direction is [1, -1]:
                         # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'left':
                             lazor_next = [lazor_next[0] - 1, lazor_next[1] - 1]
@@ -117,7 +117,7 @@ class Lazor(object):
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
                         lazor_path.append(lazor_next2)
-                    elif direction is [-1, -1]:
+                    elif self.direction is [-1, -1]:
                          # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'right':
                             lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
@@ -132,7 +132,7 @@ class Lazor(object):
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
                         lazor_path.append(lazor_next2)     
-                    elif direction is [-1, 1]:
+                    elif self.direction is [-1, 1]:
                          # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'right':
                             lazor_next = [lazor_next[0] + 1, lazor_next[1] + 1]
@@ -147,7 +147,7 @@ class Lazor(object):
                         block_cross.append(next_block)
                         lazor_path.append(lazor_next)
                         lazor_path.append(lazor_next2)   
-                    elif direction is [-1, -1]:
+                    elif self.direction is [-1, -1]:
                         # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'right':
                             lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
@@ -163,7 +163,7 @@ class Lazor(object):
                         lazor_path.append(lazor_next)
                         lazor_path.append(lazor_next2)       
 
-                    elif direction is [1, 1]:
+                    elif self.direction is [1, 1]:
                         # figure out block intercept point could be top, bot, left, right
                         if lazor_next == 'left':
                             lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
@@ -179,7 +179,7 @@ class Lazor(object):
                         lazor_path.append(lazor_next)
                         lazor_path.append(lazor_next2)
                         
-                elif next_block[1:] == 'B':
+                elif next_block[1] == 'B':
                     # opaque block, dead end
                     block_cross.append(next_block)
                     lazor_path.append(lazor_next)
@@ -202,7 +202,6 @@ class Lazor(object):
         for i in goal:
             if i not in lazor_path:
                 goal_left.append(i)
-        return goal_left
-            
-    goal = goal left
-        
+        goal = goal_left
+        return goal
+
