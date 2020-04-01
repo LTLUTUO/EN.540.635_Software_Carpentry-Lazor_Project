@@ -23,56 +23,185 @@ class Lazor(object):
         '''
         self.start = start
         self.direction = direction
-        
-    def beam(self):
-        '''
-        this function calculates the slop and intersection for lazor beam
-        '''
-        k = (self.start[1] - self.direction[1]) / (self.start[0] - self.direction[0])
-        b = self.start[1] - k * self.start[0]
-        return k, b
     
-    def lazor_intersect_or_nor(self, query):
+    def return_block_point_cross(self, grid):
         '''
-        this function calculates if the query point can be intersected
+        this function tracks the lazor path, store the crossed blocks and points
         
         **Parameters**
-            query: *tuple*
-                   the point coordinate want to check.
-                   
-        '''
-        self.query = query
-        k, b = Lazor.beam(self)
-        lazor_vector = (self.direction[0] - self.start[0], self.direction[1] - self.start[1])
-        query_vector = (self.query[0] - self.start[0], self.query[1] - self.start[1])
-        vector_align = lazor_vector[0] * query_vector[1] - query_vector[0] * lazor_vector[1]
-        if self.query[0] * k + b == self.query[1]:
-            if vector_align == 0 and query_vector[0] / lazor_vector[0] > 0:
-                return True
-            else:
-                return False
-        else:
-            return False
+            grid: *tuple*
+                   grid of the game.       
         
-    def between_two_points_or_not(self, candidate, query):
         '''
-        this function checks the query point is falling between lazor start point and candidate point or not
+        self.grid = grid
+
+        # assign lazor at starting position
+        lazor = self.start
+        block_cross = []
+        block_position = []
+        block_intercept = {(block_position[0], block_position[1] - 1): 'top', (block_position[0], block_position[1] + 1): 'bot',
+                           (block_position[0] - 1, block_position[1]): 'left', (block_position[0] + 1, block_position[1]): 'right',}
+        function_block = ['A', 'B', 'C']
+        lazor_path = [self.start]
+        possible_directions = [[1, -1], [-1, -1], [-1, 1], [1, 1]]
+        while lazor in grid:
+            # calculate the next point lazor will be
+            lazor_next = [self.start[0] + self.direction[0], self.start[1] + self.direction [1]]
+            # store all lazor path
+            lazor_path = [lazor_path, lazor_next]
+            # define next_block to be position + a random block type
+            block_type = random.choice('oxABC')
+            next_block = [block_position, block_type]
+            if next_block[1] in function_block:
+                if next_block[1] == 'A':
+                    # reflect block, change lazor direction
+                    if self.direction is [1, -1]:
+                        # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'left':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        elif lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] + 1]
+                        elif lazor_next == 'right' or lazor_next == 'top':
+                            lazor_next = [lazor_next[0] - 2, lazor_next[1] + 2]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                    elif self.direction is [-1, -1]:
+                         # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'right':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
+                        elif lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
+                        elif lazor_next == 'left' or lazor_next == 'top':
+                            lazor_next = [lazor_next[0] + 2, lazor_next[1] + 2]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                    elif self.direction is [-1, 1]:
+                        # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'right':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] + 1]
+                        elif lazor_next == 'top':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        elif lazor_next == 'left' or lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] + 2, lazor_next[1] - 2]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                    elif self.direction is [1, 1]:
+                        # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'left':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
+                        elif lazor_next == 'top':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
+                        elif lazor_next == 'right' or lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] - 2, lazor_next[1] - 2]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+               
+                elif next_block[1] == 'C':
+                    # refract block, reulting two lazor path
+                    if self.direction is [1, -1]:
+                        # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'left':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] - 1]
+                            lazor_next2 = [lazor_next[0] + 1, lazor_next[1] - 1]
+                        elif lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
+                            lazor_next2 = [lazor_next[0] + 1, lazor_next[1] - 1]
+                        elif lazor_next == 'right' or lazor_next == 'top':
+                            lazor_next = [lazor_next[0] - 2, lazor_next[1] + 2]
+                            lazor_next2 = [lazor_next[0] + 1, lazor_next[1] - 1]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                        lazor_path.append(lazor_next2)
+                    elif self.direction is [-1, -1]:
+                         # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'right':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        elif lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        elif lazor_next == 'left' or lazor_next == 'top':
+                            lazor_next = [lazor_next[0] + 2, lazor_next[1] + 2]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                        lazor_path.append(lazor_next2)     
+                    elif self.direction is [-1, 1]:
+                         # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'right':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] + 1]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] + 1]
+                        elif lazor_next == 'top':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] - 1]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] + 1]
+                        elif lazor_next == 'left' or lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] + 2, lazor_next[1] - 2]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] + 1]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                        lazor_path.append(lazor_next2)   
+                    elif self.direction is [-1, -1]:
+                        # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'right':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        elif lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        elif lazor_next == 'left' or lazor_next == 'top':
+                            lazor_next = [lazor_next[0] + 2, lazor_next[1] + 2]
+                            lazor_next2 = [lazor_next[0] - 1, lazor_next[1] - 1]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                        lazor_path.append(lazor_next2)       
+
+                    elif self.direction is [1, 1]:
+                        # figure out block intercept point could be top, bot, left, right
+                        if lazor_next == 'left':
+                            lazor_next = [lazor_next[0] - 1, lazor_next[1] + 1]
+                            lazor_next2 = [lazor_next[0] + 1, lazor_next[1] - 1]
+                        elif lazor_next == 'top':
+                            lazor_next = [lazor_next[0] + 1, lazor_next[1] - 1]
+                            lazor_next2 = [lazor_next[0] + 1, lazor_next[1] + 1]
+                        elif lazor_next == 'right' or lazor_next == 'bot':
+                            lazor_next = [lazor_next[0] - 2, lazor_next[1] - 2]
+                            lazor_next2 = [lazor_next[0] + 1, lazor_next[1] + 1]
+                        # store all crossed blocks and lazor path
+                        block_cross.append(next_block)
+                        lazor_path.append(lazor_next)
+                        lazor_path.append(lazor_next2)
+                        
+                elif next_block[1] == 'B':
+                    # opaque block, dead end
+                    block_cross.append(next_block)
+                    lazor_path.append(lazor_next)
+                    break
+            return
+        pass
+
+    
+    def goal_search(self, goal):
+        '''
+        this function tracks the goal points left
         
         **Parameters**
-            candidate: *tuple*
-                       the end point of the line.
-            query: *tuple*
-                   the point coordinate you want to check.
-                   
-        '''
-        self.query = query
-        self.candidate = candidate
-        x_cord = [self.candidate[0], self.start[0]]
-        y_cord = [self.candidate[1], self.start[1]]
-        if self.query[0] >= min(x_cord) and self.query[1] >= min(y_cord) and self.query[0] <= max(x_cord) and self.query[1] <= max(y_cord):
-            return True
-        else:
-            return False
-            
-                
+            goal: *tuple*
+                   goal points for the game.       
         
+        '''
+        self.goal = goal
+        goal_left = []
+        for i in goal:
+            if i not in lazor_path:
+                goal_left.append(i)
+        goal = goal_left
+        return goal
+
