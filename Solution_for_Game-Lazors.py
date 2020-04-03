@@ -12,7 +12,6 @@ import numpy as np
     # pass
 
 
-
 # class Lazor(self, point_direction):
     # init
     # start lazor
@@ -65,18 +64,47 @@ def read_puzzle(fptr):
     return grid, blocks, lazors, goal
 
 
-# def slove_puzzle(ftpr):
-#     grid, blocks, lazors, goal = read_puzzle()
-#     attempt = []
-#     lazors = lazor(lazors)
-#     solve = lazors.check_solve(goal)
-#     while not solve:
-#         cross_block = lazors.cross_block()
-#         for poss_block in cross_block:
-#             # random select block type
-#             # put block
-#             # append position
-#             pass
+def slove_puzzle(ftpr):
+    def get_b_type(blocks):
+        block = ('a', 'b', 'c')
+        b_type = [block[i] for i in blocks if blocks[i] != 0]
+        return b_type
+
+    grid, blocks, lazors, goal = read_puzzle()
+    block_sum = sum(b for b in blocks)
+    block_num = block_sum
+    attempt = [[] for i in range(block_num)]
+    c_blocks = blocks
+    lazors = lazor(lazors)
+    solve = lazors.check_solve(goal)
+    while not solve:
+        
+        while block_num != 0:
+            cross_block = lazors.cross_block()
+            b_pos = np.random.choice(cross_block)
+            b_type = get_b_type(c_blocks)
+            b = np.random.choice(b_type)
+            n_grid = put_block(b, b_pos, grid)
+            attempt[block_sum - block_num].append(b)
+            solve = lazors.check_solve(goal)
+            block_num -= 1
+            if solve:
+                return "answer"
+                # random select block type
+                # put block
+                # append position
+                pass
 
 
-read_puzzle('template/numbered_6 copy.bff')
+if __name__ == '__main__':
+    blocks = [1, 0, 2]
+    # b_type = []
+    blockt = ('a', 'b', 'c')
+    # print(a)
+    # for i in [a, b, c]:
+    #     if i != 0:
+    #         b_type.append(i)
+    b_type = [blockt[i] for i in blocks if blocks[i] != 0]
+    print(b_type)
+    e = np.random.choice(b_type)
+    print(e)
