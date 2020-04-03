@@ -66,30 +66,45 @@ def read_puzzle(fptr):
 
 def slove_puzzle(ftpr):
     def get_b_type(blocks):
-        block = ('a', 'b', 'c')
+        block = ('A', 'B', 'C')
         b_type = [block[i] for i in blocks if blocks[i] != 0]
         return b_type
 
     grid, blocks, lazors, goal = read_puzzle()
     block_sum = sum(b for b in blocks)
     block_num = block_sum
-    attempt = [[] for i in range(block_num)]
-    c_blocks = blocks
-    lazors = lazor(lazors)
-    solve = lazors.check_solve(goal)
+    attempt = [[] for i in range(block_sum)]
+    put_list = []
+    # c_blocks = blocks
+    lazors = Lazor(lazors) # what if there is multiple lazor
+    solve = lazors.check_solve(goal) # multiple check
     while not solve:
-        
-        while block_num != 0:
-            cross_block = lazors.cross_block()
+        cross_block = lazors.cross_block()
+        while block_num != 0 and cross_block:
             b_pos = np.random.choice(cross_block)
             b_type = get_b_type(c_blocks)
             b = np.random.choice(b_type)
-            n_grid = put_block(b, b_pos, grid)
-            attempt[block_sum - block_num].append(b)
+            if b not in attempt[block_sum - block_num]:
+                grid = put_block(b, b_pos, grid)
+                put_list.append(b_pos)
+                attempt[block_sum - block_num].append(b)
             solve = lazors.check_solve(goal)
+            cross_block = lazors.cross_block()
             block_num -= 1
             if solve:
                 return "answer"
+        if block_num != 0 and not cross_block:
+            b_pos = put_list[-1]
+            grid = put_block('o', b_pos, grid)
+            put_list.pop()
+            block_num += 1
+        if block_num == 0:
+            b_pos = put_list[-1]
+            grid = put_block('o', b_pos, grid)
+            block_num += 1
+            put_list.pop()
+
+
                 # random select block type
                 # put block
                 # append position
