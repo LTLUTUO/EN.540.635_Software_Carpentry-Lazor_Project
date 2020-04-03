@@ -5,7 +5,7 @@ The code is writen by Tuo Lu and Alex Fan
 import numpy as np
 
 
-#def put Block(block_id, xy):
+# def put Block(block_id, xy):
     # init
     # putblock
     # readblock
@@ -42,7 +42,7 @@ def read_puzzle(fptr):
             for i in range(len(grid_msg) * 2 + 1)]
     for i in grid_msg:
         for b in i:
-            # putblocks
+            # putblocks(grid_msg[i][b], (i, b))
             pass
 
     blocks = [0, 0, 0]
