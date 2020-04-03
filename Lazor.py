@@ -50,7 +50,7 @@ class Lazor(object):
             # store all lazor path
             lazor_path = [lazor_path, lazor_next]
             # define next_block to be position + a random block type
-            block_type = random.choice('oxABC')
+            block_type = random.choice('ABC')
             next_block = [block_position, block_type]
             if next_block[1] in function_block:
                 if next_block[1] == 'A':
