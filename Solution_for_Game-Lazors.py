@@ -53,9 +53,9 @@ class Lazor(object):
             cur_x, cur_y = cur_point
             next_x = cur_point[0] + direction[0]
             next_y = cur_point[1] + direction[1]
-            if next_x % 2, cur_y % 2:
+            if next_x % 2 and cur_y % 2:
                 next_b = (next_x, cur_y)
-            if cur_x % 2, next_y % 2:
+            elif cur_x % 2 and next_y % 2:
                 next_b = (cur_x, next_y)
             return next_b
 
@@ -67,11 +67,12 @@ class Lazor(object):
         block_cross = []
         lazor_path = []
         lazor_path.append(self.start)
-        while lazor in grid:
+        next_block = next_b(cur_point, direction)
+        while grid[next_block[1]][next_block[0]]:
 
             # define next_block to be position + a random block type
-            next_block = next_b(next_point, direction)
-            next_block_t = grid[next_block[0]][next_block[1]]
+            next_block = next_b(cur_point, direction)
+            next_block_t = grid[next_block[1]][next_block[0]]
             if next_block_t == 'A':
                 direction = reflect(cur_point, direction, next_block)
             elif next_block_t == 'B':
@@ -86,10 +87,10 @@ class Lazor(object):
             elif next_block_t == 'o':
                 block_cross.append(next_block)
             # calculate the next point lazor will be
-            next_point = [cur_point[0] + direction[0],
-                          cur_point[1] + direction[1]]
+            cur_point = (cur_point[0] + direction[0],
+                         cur_point[1] + direction[1])
             # store all lazor path
-            lazor_path.append(lazor_next)
+            lazor_path.append(cur_point)
         return [block_cross, lazor_path]
 
 
@@ -151,20 +152,25 @@ def read_puzzle(fptr):
         y = y + 2
 
     blocks = {}
+    lazor_list = []
     lazors = []
     goal = []
     for i in f[f.index('GRID STOP'):]:
         if i[0] in ['A', 'B', 'C']:
             blocks[i[0]] = int(i[2])
         elif i[0] == 'L':
-            lazors.append([tuple(map(int, i.replace('L', '').split()[s:s + 2]))
-                           for s in [0, 2]])
+            lazor_list.append([tuple(map(int, i.replace('L', '').split()[s:s + 2]))
+                               for s in [0, 2]])
         elif i[0] == 'P':
             goal.append(tuple(map(int, i.replace('P', '').split())))
+    lazors = [Lazor(l[0], l[1]) for l in lazor_list]
+    y = lazors[0].return_block_point_cross(grid)
     print(grid_msg)
     print(grid)
     print(blocks)
-    print(lazors)
+    print(lazor_list)
+    print(lazors[0])
+    print(y)
     print(goal)
     return grid, blocks, lazors, goal
 
@@ -225,8 +231,8 @@ def slove_puzzle(ftpr):
 
 
 if __name__ == '__main__':
-    blocks = {'a': 5, 'b': 0, 'c': 2}
-    b = []
+    # blocks = {'a': 5, 'b': 0, 'c': 2}
+    # b = []
     # b = ['a', 'd']
     # b_type = []
     # blockt = ('a', 'b', 'c')
@@ -240,6 +246,6 @@ if __name__ == '__main__':
     # e = sum(blocks[i] for i in blocks)
     # e = [i for i in ['a', 'b', 'c'] if blocks[i] != 0 and i not in b]
     # print(e)
-    # read_puzzle('template/numbered_6.bff')
-    e = np.random.choice(b)
-    print(e)
+    read_puzzle('template/numbered_6.bff')
+    # e = np.random.choice(b)
+    # print(e)
