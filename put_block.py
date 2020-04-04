@@ -22,5 +22,5 @@ def put_block(block_type, block_pos, grid):
             new grid after putting block
     '''
     x, y = block_pos
-    grid[x][y] = block_type
+    grid[y][x] = block_type
     return grid
