@@ -67,9 +67,7 @@ class Lazor(object):
         block_cross = []
         lazor_path = []
         lazor_path.append(self.start)
-        next_block = next_b(cur_point, direction)
-        while grid[next_block[1]][next_block[0]]:
-
+        while 0 < cur_point[0] < len(grid[0]) and 0 < cur_point[1] < len(grid):
             # define next_block to be position + a random block type
             next_block = next_b(cur_point, direction)
             next_block_t = grid[next_block[1]][next_block[0]]
@@ -87,8 +85,7 @@ class Lazor(object):
             elif next_block_t == 'o':
                 block_cross.append(next_block)
             # calculate the next point lazor will be
-            cur_point = (cur_point[0] + direction[0],
-                         cur_point[1] + direction[1])
+            cur_point = (cur_point[0] + direction[0], cur_point[1] + direction[1])
             # store all lazor path
             lazor_path.append(cur_point)
         return [block_cross, lazor_path]
