@@ -30,8 +30,7 @@ class Lazor(object):
                    goal points for the game.
         '''
         self.goal = goal
-        self.grid = grid
-        lazor_path = self.return_block_point_cross(self.grid)[1]
+        lazor_path = self.return_block_point_cross(grid)[1]
         goal_left = [i for i in goal if i not in lazor_path]
         return goal_left
 
@@ -59,22 +58,37 @@ class Lazor(object):
                 return False
             return next_b
 
+        def next_p_check(cur_point, direction):
+            next_x = cur_point[0] + direction[0]
+            next_y = cur_point[1] + direction[1]
+            if 0 < next_x < len(grid[0]) - 1 \
+               and 0 < next_y < len(grid) - 1:
+                return True
+            else:
+                return False
+
         def reflect(cur_point, direction, next_block):
-            minze = (next_block[0] - cur_point[0], next_block[1] - cur_point[1])
-            direction = (direction[0] - 2 * minze[0], direction[1] - 2 * minze[1])
+            minze = (
+                next_block[0] - cur_point[0],
+                next_block[1] - cur_point[1]
+                )
+            direction = (
+                direction[0] - 2 * minze[0],
+                direction[1] - 2 * minze[1]
+                )
             return direction
 
         block_cross = []
         lazor_path = []
         lazor_path.append(self.start)
-        while 0 < cur_point[0] < len(grid[0]) and 0 < cur_point[1] < len(grid):
+        while next_p_check(cur_point, direction):
             # define next_block to be position + a random block type
             next_block = next_b(cur_point, direction)
             next_block_t = grid[next_block[1]][next_block[0]]
             if next_block_t == 'A':
                 direction = reflect(cur_point, direction, next_block)
             elif next_block_t == 'B':
-                return lazor_path
+                return block_cross, lazor_path
             elif next_block_t == 'C':
                 lazor_2 = Lazor(cur_point, direction)
                 lazor_2_block_point = lazor_2.return_block_point_cross(grid)
@@ -85,10 +99,13 @@ class Lazor(object):
             elif next_block_t == 'o':
                 block_cross.append(next_block)
             # calculate the next point lazor will be
-            cur_point = (cur_point[0] + direction[0], cur_point[1] + direction[1])
+            cur_point = (
+                cur_point[0] + direction[0],
+                cur_point[1] + direction[1]
+                )
             # store all lazor path
             lazor_path.append(cur_point)
-        return [block_cross, lazor_path]
+        return block_cross, lazor_path
 
 
 def put_block(block_type, block_choice, grid):
@@ -154,17 +171,20 @@ def read_puzzle(fptr):
         if i[0] in ['A', 'B', 'C']:
             blocks[i[0]] = int(i[2])
         elif i[0] == 'L':
-            lazor_list.append([tuple(map(int, i.replace('L', '').split()[s:s + 2]))
-                               for s in [0, 2]])
+            lazor_list.append(
+                [tuple(map(int, i.replace('L', '').split()[s:s + 2]))
+                 for s in [0, 2]]
+                )
         elif i[0] == 'P':
             goal.append(tuple(map(int, i.replace('P', '').split())))
     lazors = [Lazor(l[0], l[1]) for l in lazor_list]
     print(grid_msg)
-    print(grid)
-    print(blocks)
+    print(len(grid))
+    print(len(grid[0]))
+    # print(blocks)
     print(lazor_list)
-    print(lazors[0])
-    # print(y)
+    # print("start", lazors[0].start)
+    # # print(y)
     print(goal)
     return grid, blocks, lazors, goal
 
@@ -178,6 +198,10 @@ def check_solve(lazor_list, grid, goal):
         return False
 
 
+def putable_b(grid):
+    
+
+
 def slove_puzzle(ftpr):
     '''
     something here
@@ -188,73 +212,60 @@ def slove_puzzle(ftpr):
     put_list = []
 
     solve = check_solve(lazors, grid, goal)
+    print("2", lazors[1].return_block_point_cross(grid))
+    print("1", lazors[0].return_block_point_cross(grid)[0])
     while not solve:
         while len(put_list) <= block_sum:
-            cross_block = [b for l in lazors
-                           for b in l.return_block_point_cross(grid)[0]]
-            # for l in lazors:
-            #     c_block = l.return_block_point_cross(grid)[0]
-            #     for b in c_block:
-            #         cross_block.append(b)
+            cross_block = [b for l in lazors for
+                           b in l.return_block_point_cross(grid)[0]]
+
+            print("find", cross_block)
+
             b_type_pos = []
-            for t in ['A', 'B', 'C']:
-                for b in cross_block:
-                    if blocks[t] != 0 and b not in attempt[len(put_list)][t]:
+            print("attempt", attempt)
+            for t in ['A', 'C']:
+                for bs in cross_block:
+                    if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
                         b_type_pos.append(t)
+            if blocks['B'] != 0 and : # still places to try to put:
+                b_type_pos.append('B')
 
             if b_type_pos == []:
-                for t in ['A', 'B', 'C']:
-                    attempt[len(put_list)][t] = []
-                #     'A': [],
-                #     'B': [],
-                #     'C': []
-                # }
+                print("things to pop", put_list)
                 (x, y), t = put_list[-1]
-                blocks[t] += 1
                 grid = put_block('o', (x, y), grid)
+                blocks[t] += 1
+                if len(put_list) != block_sum:
+                    attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
                 put_list.pop()
-                break
 
-            b_type_choice = np.random.choice(b_type_pos)
-            b_pos = [b for b in cross_block
-                     if b not in attempt[len(put_list)][b_type_choice]]
-            rand_choice = np.random.randint(0, len(b_pos))
-            b_choice = b_pos[rand_choice]
-            print(b_pos)
-            print(type(b_choice))
-            print(type(b_choice[0]))
-            print(b_choice)
+            elif b_type_pos != []:
+                b_type_choice = np.random.choice(b_type_pos)
+                if b_type_choice != 'B':
+                # b_pos = []
+                # for b in cross_block:
+                #     if b not in attempt[len(put_list)][b_type_choice]:
+                #         b_pos.append(b)
+                    b_pos = [b for b in cross_block
+                             if b not in attempt[len(put_list)][b_type_choice]]
+                    rand_choice = np.random.randint(0, len(b_pos))
+                    b_choice = b_pos[rand_choice]
+                elif b_type_choice == 'B':
+                    # just put it somewhere
+                    pass
 
-            grid = put_block(b_type_choice, b_choice, grid)
-            attempt[len(put_list)][b_type_choice].append(b_choice)
-            put_list.append((b_choice, b_type_choice))
-            blocks[b_type_choice] -= 1
+                grid = put_block(b_type_choice, b_choice, grid)
+                attempt[len(put_list)][b_type_choice].append(b_choice)
+                put_list.append((b_choice, b_type_choice))
+                blocks[b_type_choice] -= 1
+                print("after put", put_list)
 
-            solve = check_solve(lazors, grid, goal)
-            if solve:
-                print(grid)
-                print(put_list)
-                return grid, put_list
+                solve = check_solve(lazors, grid, goal)
+                if solve:
+                    print("slove", grid)
+                    print("solve", put_list)
+                    return grid, put_list
 
 
 if __name__ == '__main__':
-    # blocks = {'a': 5, 'b': 0, 'c': 2}
-    # b = [(1, 2), (3, 4)]
-    # e = np.random.choice(b)
-    # b = ['a', 'd']
-    # b_type = []
-    # blockt = ('a', 'b', 'c')
-    # print(a)
-    # for i in [a, b, c]:
-    #     if i != 0:
-    #         b_type.append(i)
-    # b_type = [blockt[i] for i in blocks if blocks[i] != 0]
-    # print(b_type)
-    # e = np.random.choice(b_type)
-    # e = sum(blocks[i] for i in blocks)
-    # e = [i for i in ['a', 'b', 'c'] if blocks[i] != 0 and i not in b]
-    # print(e)
-    s = slove_puzzle('template/mad_4.bff')
-    print(s)
-    # e = np.random.choice(b)
-    # print(e)
+    s = slove_puzzle('template/dark_1.bff')
