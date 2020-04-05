@@ -61,8 +61,8 @@ class Lazor(object):
         def next_p_check(cur_point, direction):
             next_x = cur_point[0] + direction[0]
             next_y = cur_point[1] + direction[1]
-            if 0 < next_x < len(grid[0]) - 1 \
-               and 0 < next_y < len(grid) - 1:
+            if 0 <= next_x < len(grid[0]) \
+               and 0 <= next_y < len(grid):
                 return True
             else:
                 return False
@@ -90,12 +90,17 @@ class Lazor(object):
             elif next_block_t == 'B':
                 return block_cross, lazor_path
             elif next_block_t == 'C':
-                lazor_2 = Lazor(cur_point, direction)
+                new_start = (
+                    cur_point[0] + direction[0],
+                    cur_point[1] + direction[1]
+                )
+                lazor_2 = Lazor(new_start, direction)
                 lazor_2_block_point = lazor_2.return_block_point_cross(grid)
                 direction = reflect(cur_point, direction, next_block)
-                for i in lazor_2_block_point:
-                    block_cross.append(i[0])
-                    lazor_path.append(i[1])
+                for i in lazor_2_block_point[0]:
+                    block_cross.append(i)
+                for i in lazor_2_block_point[1]:
+                    lazor_path.append(i)
             elif next_block_t == 'o':
                 block_cross.append(next_block)
             # calculate the next point lazor will be
@@ -192,6 +197,7 @@ def read_puzzle(fptr):
 def check_solve(lazor_list, grid, goal):
     for l in lazor_list:
         goal = l.goal_search(grid, goal)
+    print(goal)
     if goal == []:
         return True
     else:
@@ -199,7 +205,7 @@ def check_solve(lazor_list, grid, goal):
 
 
 def putable_b(grid):
-    
+    pass
 
 
 def slove_puzzle(ftpr):
@@ -212,26 +218,24 @@ def slove_puzzle(ftpr):
     put_list = []
 
     solve = check_solve(lazors, grid, goal)
-    print("2", lazors[1].return_block_point_cross(grid))
-    print("1", lazors[0].return_block_point_cross(grid)[0])
     while not solve:
         while len(put_list) <= block_sum:
             cross_block = [b for l in lazors for
                            b in l.return_block_point_cross(grid)[0]]
 
-            print("find", cross_block)
+            # print("find", cross_block)
 
             b_type_pos = []
-            print("attempt", attempt)
+            # print("attempt", attempt)
             for t in ['A', 'C']:
                 for bs in cross_block:
                     if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
                         b_type_pos.append(t)
-            if blocks['B'] != 0 and : # still places to try to put:
-                b_type_pos.append('B')
+            # if blocks['B'] != 0: # and still places to try to put:
+            #     b_type_pos.append('B')
 
             if b_type_pos == []:
-                print("things to pop", put_list)
+                # print("things to pop", put_list)
                 (x, y), t = put_list[-1]
                 grid = put_block('o', (x, y), grid)
                 blocks[t] += 1
@@ -258,7 +262,7 @@ def slove_puzzle(ftpr):
                 attempt[len(put_list)][b_type_choice].append(b_choice)
                 put_list.append((b_choice, b_type_choice))
                 blocks[b_type_choice] -= 1
-                print("after put", put_list)
+                # print("after put", put_list)
 
                 solve = check_solve(lazors, grid, goal)
                 if solve:
@@ -268,4 +272,4 @@ def slove_puzzle(ftpr):
 
 
 if __name__ == '__main__':
-    s = slove_puzzle('template/dark_1.bff')
+    s = slove_puzzle('template/tiny_5.bff')
