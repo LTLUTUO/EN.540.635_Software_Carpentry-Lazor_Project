@@ -19,6 +19,10 @@ class Lazor(object):
             direction: *tuple*
                       diretion of lazor.
         '''
+        assert isinstance(start, tuple) and len(start) == 2, \
+            "the start of lazors are not applicable"
+        assert isinstance(direction, tuple) and len(direction) == 2, \
+            "the direction of lazors are not applicable"
         self.start = start
         self.direction = direction
 
@@ -43,7 +47,6 @@ class Lazor(object):
             grid: *tuple*
                     grid of the game.
         '''
-        self.grid = grid
         cur_point = self.start
         direction = self.direction
 
@@ -136,6 +139,7 @@ def read_puzzle(fptr):
     f = open(fptr, 'r')
     f = f.readlines()
     f = [i.replace('\n', '') for i in f if not i == '\n']
+    assert 'GRID START' in f and 'GRID STOP' in f, "grid is not readable"
 
     # grid is the slice of list from start to stop
     grid_msg = [i.replace(' ', '')
@@ -165,10 +169,21 @@ def read_puzzle(fptr):
         elif i[0] == 'P':
             goal.append(tuple(map(int, i.replace('P', '').split())))
     lazors = [Lazor(l[0], l[1]) for l in lazor_list]
+
+    block_sum = sum(blocks[b] for b in blocks)
+    assert block_sum != 0, "not block is available to put"
+    assert goal != [], "no goal is available in the file"
+    assert lazors != [], "no lazors are available in the file"
     return grid, blocks, lazors, goal
 
 
 def visualize(grid, put_list):
+    '''
+    something here
+    '''
+    assert isinstance(grid, list), "grid is not readable"
+    assert isinstance(put_list, list) and len(put_list[0]) == 2, \
+        "put_list is not readable"
     f = open("solution.txt", 'w')
     solution = []
     for y in range(1, len(grid), 2):
@@ -176,8 +191,6 @@ def visualize(grid, put_list):
             if x == 0:
                 grid[y].remove(x)
         solution.append(' '.join(grid[y]))
-    print(grid)
-    print(solution)
     solution = '\n'.join(solution)
     f.write(solution)
     f.close()
@@ -198,6 +211,11 @@ def put_block(block_type, block_choice, grid):
         grid: *list, list*
             new grid after putting block
     '''
+    total_type = ['x', 'o', 'A', 'B', 'C']
+    assert block_type in total_type, "Can't recognize the block type"
+    assert isinstance(block_choice, tuple) and len(block_choice) == 2, \
+        "please input the right (x, y)"
+
     (x, y) = block_choice
     grid[y][x] = block_type
     return grid
@@ -222,6 +240,9 @@ def putable_b(grid):
 
 
 def solve_it_by_force(ftpr):
+    '''
+    somthing here
+    '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
     attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
@@ -241,8 +262,10 @@ def solve_it_by_force(ftpr):
             if len(put_list) != block_sum:
                 attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
             put_list.pop()
+
         elif b_type_pos == [] and put_list == []:
             return False
+
         elif b_type_pos != []:
             b_type_choice = np.random.choice(b_type_pos)
             b_pos = [b for b in putable_bs
@@ -252,11 +275,12 @@ def solve_it_by_force(ftpr):
             attempt[len(put_list)][b_type_choice].append(b_choice)
             put_list.append((b_choice, b_type_choice))
             blocks[b_type_choice] -= 1
+
         if len(put_list) == block_sum:
             solve = check_solve(lazors, grid, goal)
             if solve:
-                print("slove", grid)
-                print("solve", put_list)
+                print "slove grid:", grid
+                print "solve put_list", put_list
                 return grid, put_list
             else:
                 continue
@@ -271,66 +295,61 @@ def solve_it_smart(ftpr):
     attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
     put_list = []
 
-    solve = False
-    while not solve:
-        while len(put_list) <= block_sum:
-            cross_block = [b for l in lazors for
-                           b in l.return_block_point_cross(grid)[0]]
+    while len(put_list) <= block_sum:
+        cross_block = [b for l in lazors for
+                       b in l.return_block_point_cross(grid)[0]]
 
-            b_type_pos = []
-            for t in ['A', 'C']:
-                for bs in cross_block:
-                    if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
-                        b_type_pos.append(t)
-            if blocks['B'] != 0:
-                b_pos_for_b = []
-                putable_bs = putable_b(grid)
-                for bs in putable_bs:
-                    if bs not in attempt[len(put_list)]['B']:
-                        b_pos_for_b.append(bs)
-                if b_pos_for_b != []:
-                    b_type_pos.append('B')
+        b_type_pos = []
+        for t in ['A', 'C']:
+            for bs in cross_block:
+                if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
+                    b_type_pos.append(t)
+        if blocks['B'] != 0:
+            b_pos_for_b = []
+            putable_bs = putable_b(grid)
+            for bs in putable_bs:
+                if bs not in attempt[len(put_list)]['B']:
+                    b_pos_for_b.append(bs)
+            if b_pos_for_b != []:
+                b_type_pos.append('B')
 
-            if b_type_pos == [] and put_list != []:
-                (x, y), t = put_list[-1]
-                grid = put_block('o', (x, y), grid)
-                blocks[t] += 1
-                if len(put_list) != block_sum:
-                    attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
-                put_list.pop()
+        if b_type_pos == [] and put_list != []:
+            (x, y), t = put_list[-1]
+            grid = put_block('o', (x, y), grid)
+            blocks[t] += 1
+            if len(put_list) != block_sum:
+                attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
+            put_list.pop()
 
-            elif b_type_pos == [] and put_list == []:
-                return False
+        elif b_type_pos == [] and put_list == []:
+            return False
 
-            elif b_type_pos != []:
-                b_type_choice = np.random.choice(b_type_pos)
+        elif b_type_pos != []:
+            b_type_choice = np.random.choice(b_type_pos)
 
-                if b_type_choice != 'B':
-                    b_pos = [b for b in cross_block
-                             if b not in attempt[len(put_list)][b_type_choice]]
-                    b_choice = b_pos[np.random.randint(0, len(b_pos))]
-                elif b_type_choice == 'B':
-                    b_choice = b_pos_for_b[np.random.randint(
-                        0,
-                        len(b_pos_for_b)
-                        )]
+            if b_type_choice != 'B':
+                b_pos = [b for b in cross_block
+                         if b not in attempt[len(put_list)][b_type_choice]]
+                b_choice = b_pos[np.random.randint(0, len(b_pos))]
+            elif b_type_choice == 'B':
+                b_choice = b_pos_for_b[np.random.randint(
+                    0,
+                    len(b_pos_for_b)
+                    )]
 
-                grid = put_block(b_type_choice, b_choice, grid)
-                attempt[len(put_list)][b_type_choice].append(b_choice)
-                put_list.append((b_choice, b_type_choice))
-                blocks[b_type_choice] -= 1
+            grid = put_block(b_type_choice, b_choice, grid)
+            attempt[len(put_list)][b_type_choice].append(b_choice)
+            put_list.append((b_choice, b_type_choice))
+            blocks[b_type_choice] -= 1
 
-            if len(put_list) == block_sum:
-                solve = check_solve(lazors, grid, goal)
-                if solve:
-                    print("slove", grid)
-                    print("solve", put_list)
-                    return grid, put_list
-                else:
-                    continue
-        if put_list == []:
-            msg = solve_it_by_force(ftpr)
-            return msg
+        if len(put_list) == block_sum:
+            solve = check_solve(lazors, grid, goal)
+            if solve:
+                print "slove grid:", grid
+                print "solve put_list:", put_list
+                return grid, put_list
+            else:
+                continue
 
 
 def solve_puzzle(ftpr):
@@ -339,15 +358,12 @@ def solve_puzzle(ftpr):
     if not solve:
         solve = solve_it_by_force(ftpr)
         if not solve:
-            return "sorry, this maze cannot be solve"
+            print "sorry, this maze cannot be solve"
 
     if solve:
-        # visualize it
         grid = visualize(solve[0], solve[1])
-        print(grid)
         t2 = time.time()
-        print(t2 - t1)
-        return solve
+        print "time spent:", str(t2 - t1), 's'
 
 
 if __name__ == '__main__':
