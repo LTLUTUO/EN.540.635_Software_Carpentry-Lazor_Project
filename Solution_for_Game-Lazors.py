@@ -13,6 +13,7 @@ class Lazor(object):
     def __init__(self, start, direction):
         '''
         initial the lazor with its origin and direction
+
         **Parameters**
             start: *tuple*
                    origin position point.
@@ -32,7 +33,7 @@ class Lazor(object):
 
         **Parameters**
             goal_left: *tuple*
-                   goal points for the game.
+                       goal points for the game.
         '''
         self.goal = goal
         lazor_path = self.return_block_point_cross(grid)[1]
@@ -41,16 +42,25 @@ class Lazor(object):
 
     def return_block_point_cross(self, grid):
         '''
-        this function return the blocks and points that lazor crosses
+        this function returns the blocks and points that lazor crossed
 
         **Parameters**
             grid: *tuple*
-                    grid of the game.
+                  grid of the game.
         '''
         cur_point = self.start
         direction = self.direction
 
         def next_b(cur_point, direction):
+            '''
+            this function returns the next block's position
+
+            **Parameters**
+                cur_point: *tuple*
+                           current point position of lazor.
+                direction: *tuple*
+                           direction of lazor
+            '''
             cur_x, cur_y = cur_point
             next_x = cur_point[0] + direction[0]
             next_y = cur_point[1] + direction[1]
@@ -63,6 +73,15 @@ class Lazor(object):
             return next_b
 
         def next_p_check(cur_point, direction):
+            '''
+            this function checks the next lazor position is still in grid
+
+            **Parameters**
+                cur_point: *tuple*
+                           current point position of lazor.
+                direction: *tuple*
+                           direction of lazor
+            '''
             next_x = cur_point[0] + direction[0]
             next_y = cur_point[1] + direction[1]
             if 0 <= next_x < len(grid[0]) \
@@ -72,6 +91,17 @@ class Lazor(object):
                 return False
 
         def reflect(cur_point, direction, next_block):
+            '''
+            this function returns a new lazor direction
+
+            **Parameters**
+                cur_point: *tuple*
+                           current point position of lazor.
+                direction: *tuple*
+                           direction of lazor
+                next_block: *tuple*
+                            new block's position
+            '''
             minze = (
                 next_block[0] - cur_point[0],
                 next_block[1] - cur_point[1]
@@ -86,7 +116,6 @@ class Lazor(object):
         lazor_path = []
         lazor_path.append(self.start)
         while next_p_check(cur_point, direction):
-            # define next_block to be position + a random block type
             next_block = next_b(cur_point, direction)
             next_block_t = grid[next_block[1]][next_block[0]]
             if next_block_t == 'A':
@@ -108,19 +137,17 @@ class Lazor(object):
                 continue
             elif next_block_t == 'o':
                 block_cross.append(next_block)
-            # calculate the next point lazor will be
             cur_point = (
                 cur_point[0] + direction[0],
                 cur_point[1] + direction[1]
                 )
-            # store all lazor path
             lazor_path.append(cur_point)
         return block_cross, lazor_path
 
 
 def read_puzzle(fptr):
     '''
-    this function puts the blocks in the grid
+    this function reads the puzzle from the bff file
 
     **Parameters**
         fptr: *fptr*
@@ -128,13 +155,13 @@ def read_puzzle(fptr):
 
     **Return**
         grid: *list, list*
-            new grid after putting fixed block
+              new grid after putting fixed block
         blocks: *dict*
-            keys are the number for certain type of blocks
+                keys are the number for certain type of blocks
         lazors: *list, list, tuple*
-            lists of two tuples, representing starting point and direction
+                lists of two tuples, representing starting point and direction
         goal: *list, tuple*
-            list of x,y positions for all the goal
+              list of x,y positions for all the goal
     '''
     f = open(fptr, 'r')
     f = f.readlines()
@@ -179,7 +206,13 @@ def read_puzzle(fptr):
 
 def visualize(grid, put_list):
     '''
-    something here
+    this function helps gamer to visualize the result
+    
+    **Parameters**
+        grid: *list, list*
+              the grid needed to put block
+        put_list: *list*
+                  solved blocks' positions and types
     '''
     assert isinstance(grid, list), "grid is not readable"
     assert isinstance(put_list, list) and len(put_list[0]) == 2, \
@@ -202,14 +235,11 @@ def put_block(block_type, block_choice, grid):
 
     **Parameters**
         block_type: *str*
-            type of block, [A, B, C, o, x]
-        block_pos: *tuple, int*
-            the position of block needed to put
+                    type of block, [A, B, C, o, x]
+        block_choice: *tuple*
+                      the position of block needed to put
         grid: *list, list*
-            the grid needed to put block
-    **Return**
-        grid: *list, list*
-            new grid after putting block
+              the grid needed to put block
     '''
     total_type = ['x', 'o', 'A', 'B', 'C']
     assert block_type in total_type, "Can't recognize the block type"
@@ -222,6 +252,7 @@ def put_block(block_type, block_choice, grid):
 
 
 def check_solve(lazor_list, grid, goal):
+    
     for l in lazor_list:
         goal = l.goal_search(grid, goal)
     if goal == []:
@@ -231,6 +262,7 @@ def check_solve(lazor_list, grid, goal):
 
 
 def putable_b(grid):
+    
     putable_b = []
     for y in range(len(grid)):
         for x in range(len(grid[0])):
@@ -353,6 +385,7 @@ def solve_it_smart(ftpr):
 
 
 def solve_puzzle(ftpr):
+    
     t1 = time.time()
     solve = solve_it_smart(ftpr)
     if not solve:
