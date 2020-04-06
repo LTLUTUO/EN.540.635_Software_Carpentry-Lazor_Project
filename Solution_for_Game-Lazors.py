@@ -3,6 +3,7 @@ This is the Lazors Project for EN.540.635_Software_Carpentry
 The code is writen by Tuo Lu and Alex Fan
 '''
 import numpy as np
+import time
 
 
 class Lazor(object):
@@ -204,7 +205,48 @@ def putable_b(grid):
     return putable_b
 
 
-def slove_puzzle(ftpr):
+def solve_it_by_force(ftpr):
+    grid, blocks, lazors, goal = read_puzzle(ftpr)
+    block_sum = sum(blocks[b] for b in blocks)
+    attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
+    put_list = []
+    while len(put_list) <= block_sum:
+        b_pos = []
+        b_type_pos = []
+        putable_bs = putable_b(grid)
+        for t in ['A', 'B', 'C']:
+            for bs in putable_bs:
+                if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
+                    b_type_pos.append(t)
+        if b_type_pos == [] and put_list != []:
+            (x, y), t = put_list[-1]
+            grid = put_block('o', (x, y), grid)
+            blocks[t] += 1
+            if len(put_list) != block_sum:
+                attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
+            put_list.pop()
+        elif b_type_pos == [] and put_list == []:
+            return False
+        elif b_type_pos != []:
+            b_type_choice = np.random.choice(b_type_pos)
+            b_pos = [b for b in putable_bs
+                     if b not in attempt[len(put_list)][b_type_choice]]
+            b_choice = b_pos[np.random.randint(0, len(b_pos))]
+            grid = put_block(b_type_choice, b_choice, grid)
+            attempt[len(put_list)][b_type_choice].append(b_choice)
+            put_list.append((b_choice, b_type_choice))
+            blocks[b_type_choice] -= 1
+        if len(put_list) == block_sum:
+            solve = check_solve(lazors, grid, goal)
+            if solve:
+                print("slove", grid)
+                print("solve", put_list)
+                return grid, put_list
+            else:
+                continue
+
+
+def solve_it_smart(ftpr):
     '''
     something here
     '''
@@ -242,7 +284,7 @@ def slove_puzzle(ftpr):
                 put_list.pop()
 
             elif b_type_pos == [] and put_list == []:
-                break
+                return False
 
             elif b_type_pos != []:
                 b_type_choice = np.random.choice(b_type_pos)
@@ -271,41 +313,25 @@ def slove_puzzle(ftpr):
                 else:
                     continue
         if put_list == []:
-            attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
-            while len(put_list) <= block_sum:
-                b_pos = []
-                b_type_pos = []
-                putable_bs = putable_b(grid)
-                for t in ['A', 'B', 'C']:
-                    for bs in putable_bs:
-                        if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
-                            b_type_pos.append(t)
-                if b_type_pos == [] and put_list != []:
-                    (x, y), t = put_list[-1]
-                    grid = put_block('o', (x, y), grid)
-                    blocks[t] += 1
-                    if len(put_list) != block_sum:
-                        attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
-                    put_list.pop()
-                elif b_type_pos == [] and put_list == []:
-                    return "sorry, this maze cannot be solve"
-                elif b_type_pos != []:
-                    b_type_choice = np.random.choice(b_type_pos)
-                    b_pos = [b for b in putable_bs if b not in attempt[len(put_list)][b_type_choice]]
-                    b_choice = b_pos[np.random.randint(0, len(b_pos))]
-                    grid = put_block(b_type_choice, b_choice, grid)
-                    attempt[len(put_list)][b_type_choice].append(b_choice)
-                    put_list.append((b_choice, b_type_choice))
-                    blocks[b_type_choice] -= 1
-                if len(put_list) == block_sum:
-                    solve = check_solve(lazors, grid, goal)
-                    if solve:
-                        print("slove", grid)
-                        print("solve", put_list)
-                        return grid, put_list
-                    else:
-                        continue
+            msg = solve_it_by_force(ftpr)
+            return msg
+
+
+def solve_puzzle(ftpr):
+    t1 = time.time()
+    solve = solve_it_smart(ftpr)
+    if not solve:
+        solve = solve_it_by_force(ftpr)
+        t2 = time.time()
+        print(t2 - t1)
+        if not solve:
+            return "sorry, this maze cannot be solve"
+    elif solve:
+        # visualize it
+        t2 = time.time()
+        print(t2 - t1)
+        return solve
 
 
 if __name__ == '__main__':
-    s = slove_puzzle('template/tiny_5.bff')
+    s = solve_puzzle('template/tiny_5.bff')
