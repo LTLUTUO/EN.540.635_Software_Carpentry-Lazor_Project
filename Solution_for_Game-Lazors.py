@@ -102,6 +102,7 @@ class Lazor(object):
                     block_cross.append(i)
                 for i in lazor_2_block_point[1]:
                     lazor_path.append(i)
+                continue
             elif next_block_t == 'o':
                 block_cross.append(next_block)
             # calculate the next point lazor will be
@@ -112,26 +113,6 @@ class Lazor(object):
             # store all lazor path
             lazor_path.append(cur_point)
         return block_cross, lazor_path
-
-
-def put_block(block_type, block_choice, grid):
-    '''
-    this function puts the blocks in the grid
-
-    **Parameters**
-        block_type: *str*
-            type of block, [A, B, C, o, x]
-        block_pos: *tuple, int*
-            the position of block needed to put
-        grid: *list, list*
-            the grid needed to put block
-    **Return**
-        grid: *list, list*
-            new grid after putting block
-    '''
-    (x, y) = block_choice
-    grid[y][x] = block_type
-    return grid
 
 
 def read_puzzle(fptr):
@@ -185,6 +166,41 @@ def read_puzzle(fptr):
             goal.append(tuple(map(int, i.replace('P', '').split())))
     lazors = [Lazor(l[0], l[1]) for l in lazor_list]
     return grid, blocks, lazors, goal
+
+
+def visualize(grid, put_list):
+    f = open("solution.txt", 'w')
+    solution = []
+    for y in range(1, len(grid), 2):
+        for x in grid[y]:
+            if x == 0:
+                grid[y].remove(x)
+        solution.append(' '.join(grid[y]))
+    print(grid)
+    print(solution)
+    solution = '\n'.join(solution)
+    f.write(solution)
+    f.close()
+
+
+def put_block(block_type, block_choice, grid):
+    '''
+    this function puts the blocks in the grid
+
+    **Parameters**
+        block_type: *str*
+            type of block, [A, B, C, o, x]
+        block_pos: *tuple, int*
+            the position of block needed to put
+        grid: *list, list*
+            the grid needed to put block
+    **Return**
+        grid: *list, list*
+            new grid after putting block
+    '''
+    (x, y) = block_choice
+    grid[y][x] = block_type
+    return grid
 
 
 def check_solve(lazor_list, grid, goal):
@@ -322,12 +338,13 @@ def solve_puzzle(ftpr):
     solve = solve_it_smart(ftpr)
     if not solve:
         solve = solve_it_by_force(ftpr)
-        t2 = time.time()
-        print(t2 - t1)
         if not solve:
             return "sorry, this maze cannot be solve"
-    elif solve:
+
+    if solve:
         # visualize it
+        grid = visualize(solve[0], solve[1])
+        print(grid)
         t2 = time.time()
         print(t2 - t1)
         return solve
