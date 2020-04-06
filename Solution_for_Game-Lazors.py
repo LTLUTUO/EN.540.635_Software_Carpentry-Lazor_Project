@@ -183,21 +183,12 @@ def read_puzzle(fptr):
         elif i[0] == 'P':
             goal.append(tuple(map(int, i.replace('P', '').split())))
     lazors = [Lazor(l[0], l[1]) for l in lazor_list]
-    print(grid_msg)
-    print(len(grid))
-    print(len(grid[0]))
-    # print(blocks)
-    print(lazor_list)
-    # print("start", lazors[0].start)
-    # # print(y)
-    print(goal)
     return grid, blocks, lazors, goal
 
 
 def check_solve(lazor_list, grid, goal):
     for l in lazor_list:
         goal = l.goal_search(grid, goal)
-    print(goal)
     if goal == []:
         return True
     else:
@@ -205,7 +196,12 @@ def check_solve(lazor_list, grid, goal):
 
 
 def putable_b(grid):
-    pass
+    putable_b = []
+    for y in range(len(grid)):
+        for x in range(len(grid[0])):
+            if grid[y][x] == 'o':
+                putable_b.append((x, y))
+    return putable_b
 
 
 def slove_puzzle(ftpr):
@@ -217,25 +213,27 @@ def slove_puzzle(ftpr):
     attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
     put_list = []
 
-    solve = check_solve(lazors, grid, goal)
+    solve = False
     while not solve:
         while len(put_list) <= block_sum:
             cross_block = [b for l in lazors for
                            b in l.return_block_point_cross(grid)[0]]
 
-            # print("find", cross_block)
-
             b_type_pos = []
-            # print("attempt", attempt)
             for t in ['A', 'C']:
                 for bs in cross_block:
                     if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
                         b_type_pos.append(t)
-            # if blocks['B'] != 0: # and still places to try to put:
-            #     b_type_pos.append('B')
+            if blocks['B'] != 0:
+                b_pos_for_b = []
+                putable_bs = putable_b(grid)
+                for bs in putable_bs:
+                    if bs not in attempt[len(put_list)]['B']:
+                        b_pos_for_b.append(bs)
+                if b_pos_for_b != []:
+                    b_type_pos.append('B')
 
-            if b_type_pos == []:
-                # print("things to pop", put_list)
+            if b_type_pos == [] and put_list != []:
                 (x, y), t = put_list[-1]
                 grid = put_block('o', (x, y), grid)
                 blocks[t] += 1
@@ -243,32 +241,70 @@ def slove_puzzle(ftpr):
                     attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
                 put_list.pop()
 
+            elif b_type_pos == [] and put_list == []:
+                break
+
             elif b_type_pos != []:
                 b_type_choice = np.random.choice(b_type_pos)
+
                 if b_type_choice != 'B':
-                # b_pos = []
-                # for b in cross_block:
-                #     if b not in attempt[len(put_list)][b_type_choice]:
-                #         b_pos.append(b)
                     b_pos = [b for b in cross_block
                              if b not in attempt[len(put_list)][b_type_choice]]
-                    rand_choice = np.random.randint(0, len(b_pos))
-                    b_choice = b_pos[rand_choice]
+                    b_choice = b_pos[np.random.randint(0, len(b_pos))]
                 elif b_type_choice == 'B':
-                    # just put it somewhere
-                    pass
+                    b_choice = b_pos_for_b[np.random.randint(
+                        0,
+                        len(b_pos_for_b)
+                        )]
 
                 grid = put_block(b_type_choice, b_choice, grid)
                 attempt[len(put_list)][b_type_choice].append(b_choice)
                 put_list.append((b_choice, b_type_choice))
                 blocks[b_type_choice] -= 1
-                # print("after put", put_list)
 
+            if len(put_list) == block_sum:
                 solve = check_solve(lazors, grid, goal)
                 if solve:
                     print("slove", grid)
                     print("solve", put_list)
                     return grid, put_list
+                else:
+                    continue
+        if put_list == []:
+            attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
+            while len(put_list) <= block_sum:
+                b_pos = []
+                b_type_pos = []
+                putable_bs = putable_b(grid)
+                for t in ['A', 'B', 'C']:
+                    for bs in putable_bs:
+                        if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
+                            b_type_pos.append(t)
+                if b_type_pos == [] and put_list != []:
+                    (x, y), t = put_list[-1]
+                    grid = put_block('o', (x, y), grid)
+                    blocks[t] += 1
+                    if len(put_list) != block_sum:
+                        attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
+                    put_list.pop()
+                elif b_type_pos == [] and put_list == []:
+                    return "sorry, this maze cannot be solve"
+                elif b_type_pos != []:
+                    b_type_choice = np.random.choice(b_type_pos)
+                    b_pos = [b for b in putable_bs if b not in attempt[len(put_list)][b_type_choice]]
+                    b_choice = b_pos[np.random.randint(0, len(b_pos))]
+                    grid = put_block(b_type_choice, b_choice, grid)
+                    attempt[len(put_list)][b_type_choice].append(b_choice)
+                    put_list.append((b_choice, b_type_choice))
+                    blocks[b_type_choice] -= 1
+                if len(put_list) == block_sum:
+                    solve = check_solve(lazors, grid, goal)
+                    if solve:
+                        print("slove", grid)
+                        print("solve", put_list)
+                        return grid, put_list
+                    else:
+                        continue
 
 
 if __name__ == '__main__':
