@@ -16,9 +16,9 @@ class Lazor(object):
 
         **Parameters**
             start: *tuple*
-                   origin position point.
+                    origin position point.
             direction: *tuple*
-                      diretion of lazor.
+                       diretion of lazor.
         '''
         assert isinstance(start, tuple) and len(start) == 2, \
             "the start of lazors are not applicable"
@@ -32,8 +32,14 @@ class Lazor(object):
         this function tracks the goal points left
 
         **Parameters**
-            goal_left: *tuple*
-                       goal points for the game.
+            grid: *list, list*
+                   grid after putting fixed blocks
+            goal: *list, tuple*
+                   list of x,y positions for all the goals
+
+        **Return**
+            goal_left: *list, tuple*
+                       goals have not hit by the lazor
         '''
         self.goal = goal
         lazor_path = self.return_block_point_cross(grid)[1]
@@ -46,7 +52,7 @@ class Lazor(object):
 
         **Parameters**
             grid: *tuple*
-                  grid of the game.
+                   grid of the game.
         '''
         cur_point = self.start
         direction = self.direction
@@ -57,9 +63,13 @@ class Lazor(object):
 
             **Parameters**
                 cur_point: *tuple*
-                           current point position of lazor.
+                            current point position of lazor.
                 direction: *tuple*
-                           direction of lazor
+                            direction of lazor
+
+            **Return**
+                next_b: *tuple*
+                         next block position
             '''
             cur_x, cur_y = cur_point
             next_x = cur_point[0] + direction[0]
@@ -78,9 +88,9 @@ class Lazor(object):
 
             **Parameters**
                 cur_point: *tuple*
-                           current point position of lazor.
+                            current point position of lazor.
                 direction: *tuple*
-                           direction of lazor
+                            direction of lazor
             '''
             next_x = cur_point[0] + direction[0]
             next_y = cur_point[1] + direction[1]
@@ -96,11 +106,15 @@ class Lazor(object):
 
             **Parameters**
                 cur_point: *tuple*
-                           current point position of lazor.
+                            current point position of lazor.
                 direction: *tuple*
-                           direction of lazor
+                            direction of lazor
                 next_block: *tuple*
-                            new block's position
+                             new block's position
+
+            **Return**
+                direction: *tuple*
+                            new direction after reflect
             '''
             minze = (
                 next_block[0] - cur_point[0],
@@ -151,17 +165,17 @@ def read_puzzle(fptr):
 
     **Parameters**
         fptr: *fptr*
-            .bff file that needed to read
+               .bff file that needed to read
 
     **Return**
         grid: *list, list*
-              new grid after putting fixed block
+               new grid after putting fixed block
         blocks: *dict*
-                keys are the number for certain type of blocks
+                 keys are the number for certain type of blocks
         lazors: *list, list, tuple*
-                lists of two tuples, representing starting point and direction
+                 lists of two tuples, representing starting point and direction
         goal: *list, tuple*
-              list of x,y positions for all the goal
+               list of x,y positions for all the goal
     '''
     f = open(fptr, 'r')
     f = f.readlines()
@@ -210,9 +224,9 @@ def visualize(grid, put_list):
 
     **Parameters**
         grid: *list, list*
-              the grid needed to put block
+               the grid needed to put block
         put_list: *list*
-                  solved blocks' positions and types
+                   solved blocks' positions and types
     '''
     assert isinstance(grid, list), "grid is not readable"
     assert isinstance(put_list, list) and len(put_list[0]) == 2, \
@@ -235,11 +249,15 @@ def put_block(block_type, block_choice, grid):
 
     **Parameters**
         block_type: *str*
-                    type of block, [A, B, C, o, x]
+                     type of block, [A, B, C, o, x]
         block_choice: *tuple*
-                      the position of block needed to put
+                       the position of block needed to put
         grid: *list, list*
-              the grid needed to put block
+               the grid needed to put block
+
+    **Return**
+        grid: *list, list*
+               new grid after put blocks
     '''
     total_type = ['x', 'o', 'A', 'B', 'C']
     assert block_type in total_type, "Can't recognize the block type"
@@ -257,11 +275,11 @@ def check_solve(lazor_list, grid, goal):
 
     **Parameters**
         lazor_list: *list*
-                    original lazors positions
+                     original lazors positions
         grid: *list, list*
-              the grid needed to put block
+               the grid needed to put block
         goal: *list*
-              all target points need to be hit by the lazor
+               all target points need to be hit by the lazor
     '''
     for l in lazor_list:
         goal = l.goal_search(grid, goal)
@@ -277,7 +295,11 @@ def putable_b(grid):
 
     **Parameters**
         grid: *list, list*
-              the grid needed to put block
+               the grid needed to put block
+
+    **Return**
+        putable_b: *list, tuple*
+                    positions of all putable blocks
     '''
     putable_b = []
     for y in range(len(grid)):
@@ -294,6 +316,12 @@ def solve_it_by_force(ftpr):
     **Parameters**
             fptr: *fptr*
                   .bff file that needed to read
+
+    **Return**
+        grid: *list, list*
+               new grid after solve the game
+        put_list: *list*
+                   blocks put in the grid
     '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
@@ -331,8 +359,8 @@ def solve_it_by_force(ftpr):
         if len(put_list) == block_sum:
             solve = check_solve(lazors, grid, goal)
             if solve:
-                print "slove grid:", grid
-                print "solve put_list", put_list
+                print("slove grid:", grid)
+                print("solve put_list", put_list)
                 return grid, put_list
             else:
                 continue
@@ -345,6 +373,12 @@ def solve_it_smart(ftpr):
     **Parameters**
             fptr: *fptr*
                   .bff file that needed to read
+
+    **Return**
+        grid: *list, list*
+               new grid after solve the game
+        put_list: *list*
+                   blocks put in the grid
     '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
@@ -401,8 +435,8 @@ def solve_it_smart(ftpr):
         if len(put_list) == block_sum:
             solve = check_solve(lazors, grid, goal)
             if solve:
-                print "slove grid:", grid
-                print "solve put_list:", put_list
+                print("slove grid:", grid)
+                print("solve put_list:", put_list)
                 return grid, put_list
             else:
                 continue
@@ -410,7 +444,8 @@ def solve_it_smart(ftpr):
 
 def solve_puzzle(ftpr):
     '''
-    this function solves the game
+    this function solves the game by using smart way first, if it does not work
+    use the other way. Also records the time spend
 
     **Parameters**
             fptr: *fptr*
@@ -421,13 +456,13 @@ def solve_puzzle(ftpr):
     if not solve:
         solve = solve_it_by_force(ftpr)
         if not solve:
-            print "sorry, this maze cannot be solve"
+            print("sorry, this maze cannot be solve")
 
     if solve:
         grid = visualize(solve[0], solve[1])
         t2 = time.time()
-        print "time spent:", str(t2 - t1), 's'
+        print("time spent:", str(t2 - t1), 's')
 
 
 if __name__ == '__main__':
-    s = solve_puzzle('template/tiny_5.bff')
+    s = solve_puzzle('template/yarn_5.bff')
