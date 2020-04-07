@@ -207,7 +207,7 @@ def read_puzzle(fptr):
 def visualize(grid, put_list):
     '''
     this function helps gamer to visualize the result
-    
+
     **Parameters**
         grid: *list, list*
               the grid needed to put block
@@ -252,7 +252,17 @@ def put_block(block_type, block_choice, grid):
 
 
 def check_solve(lazor_list, grid, goal):
-    
+    '''
+    this function checks goals get solved or not
+
+    **Parameters**
+        lazor_list: *list*
+                    original lazors positions
+        grid: *list, list*
+              the grid needed to put block
+        goal: *list*
+              all target points need to be hit by the lazor
+    '''
     for l in lazor_list:
         goal = l.goal_search(grid, goal)
     if goal == []:
@@ -262,7 +272,13 @@ def check_solve(lazor_list, grid, goal):
 
 
 def putable_b(grid):
-    
+    '''
+    this function puts all available blocks on the grid
+
+    **Parameters**
+        grid: *list, list*
+              the grid needed to put block
+    '''
     putable_b = []
     for y in range(len(grid)):
         for x in range(len(grid[0])):
@@ -273,7 +289,11 @@ def putable_b(grid):
 
 def solve_it_by_force(ftpr):
     '''
-    somthing here
+    this function solves the game
+
+    **Parameters**
+            fptr: *fptr*
+                  .bff file that needed to read
     '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
@@ -320,7 +340,11 @@ def solve_it_by_force(ftpr):
 
 def solve_it_smart(ftpr):
     '''
-    something here
+    this function solves the game
+
+    **Parameters**
+            fptr: *fptr*
+                  .bff file that needed to read
     '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
@@ -385,7 +409,13 @@ def solve_it_smart(ftpr):
 
 
 def solve_puzzle(ftpr):
-    
+    '''
+    this function solves the game
+
+    **Parameters**
+            fptr: *fptr*
+                  .bff file that needed to read
+    '''
     t1 = time.time()
     solve = solve_it_smart(ftpr)
     if not solve:
