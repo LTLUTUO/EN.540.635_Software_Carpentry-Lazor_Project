@@ -15,10 +15,10 @@ class Lazor(object):
         initial the lazor with its origin and direction
 
         **Parameters**
-            start: *tuple*
-                    origin position point.
-            direction: *tuple*
-                       diretion of lazor.
+            start: *tuple, int*
+                origin position point.
+            direction: *tuple, int*
+                diretion of lazor.
         '''
         assert isinstance(start, tuple) and len(start) == 2, \
             "the start of lazors are not applicable"
@@ -29,17 +29,17 @@ class Lazor(object):
 
     def goal_search(self, grid, goal):
         '''
-        this function tracks the goal points left
+        this function tracks the goal points left after crossed by this lazor
 
         **Parameters**
-            grid: *list, list*
-                   grid after putting fixed blocks
-            goal: *list, tuple*
-                   list of x,y positions for all the goals
+            grid: *list, list, int*
+                grid after putting fixed blocks
+            goal: *list, tuple, int*
+                list of x,y positions for all the goals
 
         **Return**
-            goal_left: *list, tuple*
-                       goals have not hit by the lazor
+            goal_left: *list, tuple, int*
+                goals have not hit by the lazor
         '''
         self.goal = goal
         lazor_path = self.return_block_point_cross(grid)[1]
@@ -51,8 +51,14 @@ class Lazor(object):
         this function returns the blocks and points that lazor crossed
 
         **Parameters**
-            grid: *tuple*
-                   grid of the game.
+            grid: *list, list, string/int*
+                grid of the game.
+
+        **Return**
+            block_cross: *list, tuple, int*
+                list of blocks' position that is crossed by the lazor
+            lazor_path: *list, tuple, int*
+                list of points' position that is crossed by the lazor
         '''
         cur_point = self.start
         direction = self.direction
@@ -62,14 +68,14 @@ class Lazor(object):
             this function returns the next block's position
 
             **Parameters**
-                cur_point: *tuple*
-                            current point position of lazor.
-                direction: *tuple*
-                            direction of lazor
+                cur_point: *tuple, int*
+                    current point position of lazor.
+                direction: *tuple, int*
+                    direction of lazor
 
             **Return**
-                next_b: *tuple*
-                         next block position
+                next_b: *tuple, int*
+                    next block position
             '''
             cur_x, cur_y = cur_point
             next_x = cur_point[0] + direction[0]
@@ -84,13 +90,17 @@ class Lazor(object):
 
         def next_p_check(cur_point, direction):
             '''
-            this function checks the next lazor position is still in grid
+            this function checks if the next lazor position is still in grid
 
             **Parameters**
                 cur_point: *tuple*
-                            current point position of lazor.
+                    current point position of lazor.
                 direction: *tuple*
-                            direction of lazor
+                    direction of lazor
+
+            **Return**
+                True/False: *bool*
+                    Return True if the next point is in the grid
             '''
             next_x = cur_point[0] + direction[0]
             next_y = cur_point[1] + direction[1]
@@ -102,19 +112,19 @@ class Lazor(object):
 
         def reflect(cur_point, direction, next_block):
             '''
-            this function returns a new lazor direction
+            this function returns a new lazor direction after reflection
 
             **Parameters**
-                cur_point: *tuple*
-                            current point position of lazor.
-                direction: *tuple*
-                            direction of lazor
-                next_block: *tuple*
-                             new block's position
+                cur_point: *tuple, int*
+                    current point position of lazor.
+                direction: *tuple, int*
+                    direction of lazor
+                next_block: *tuple, int*
+                    new block's position
 
             **Return**
-                direction: *tuple*
-                            new direction after reflect
+                direction: *tuple, int*
+                    new direction after reflect
             '''
             minze = (
                 next_block[0] - cur_point[0],
@@ -126,6 +136,7 @@ class Lazor(object):
                 )
             return direction
 
+        # here is the main function script
         block_cross = []
         lazor_path = []
         lazor_path.append(self.start)
@@ -141,16 +152,22 @@ class Lazor(object):
                     cur_point[0] + direction[0],
                     cur_point[1] + direction[1]
                 )
+                # start a new lazor along the orgin direction
                 lazor_2 = Lazor(new_start, direction)
                 lazor_2_block_point = lazor_2.return_block_point_cross(grid)
-                direction = reflect(cur_point, direction, next_block)
+                # get all the block and point crossed by the new lazor
                 for i in lazor_2_block_point[0]:
                     block_cross.append(i)
                 for i in lazor_2_block_point[1]:
                     lazor_path.append(i)
+                # reflect the current lazor
+                direction = reflect(cur_point, direction, next_block)
                 continue
+            # append block crossed if the block is 'o'
             elif next_block_t == 'o':
                 block_cross.append(next_block)
+
+            # update the current point to the next point
             cur_point = (
                 cur_point[0] + direction[0],
                 cur_point[1] + direction[1]
@@ -165,17 +182,17 @@ def read_puzzle(fptr):
 
     **Parameters**
         fptr: *fptr*
-               .bff file that needed to read
+            .bff file that needed to read
 
     **Return**
-        grid: *list, list*
-               new grid after putting fixed block
+        grid: *list, list, int/str*
+            grid after putting fixed block
         blocks: *dict*
-                 keys are the number for certain type of blocks
-        lazors: *list, list, tuple*
-                 lists of two tuples, representing starting point and direction
-        goal: *list, tuple*
-               list of x,y positions for all the goal
+            keys are the number for certain type of blocks
+        lazors: *list, object*
+            lists of lazors after initiate
+        goal: *list, tuple, int*
+            list of x,y positions for all the goal
     '''
     f = open(fptr, 'r')
     f = f.readlines()
@@ -223,10 +240,10 @@ def visualize(grid, put_list):
     this function helps gamer to visualize the result
 
     **Parameters**
-        grid: *list, list*
-               the grid needed to put block
+        grid: *list, list, int/string*
+            the grid needed to put block
         put_list: *list*
-                   solved blocks' positions and types
+            solved blocks' positions and types
     '''
     assert isinstance(grid, list), "grid is not readable"
     assert isinstance(put_list, list) and len(put_list[0]) == 2, \
@@ -249,15 +266,15 @@ def put_block(block_type, block_choice, grid):
 
     **Parameters**
         block_type: *str*
-                     type of block, [A, B, C, o, x]
-        block_choice: *tuple*
-                       the position of block needed to put
-        grid: *list, list*
-               the grid needed to put block
+            type of block, [A, B, C, o, x]
+        block_choice: *tuple, int*
+            the position of block needed to put
+        grid: *list, list, int/str*
+            the grid needed to put block
 
     **Return**
-        grid: *list, list*
-               new grid after put blocks
+        grid: *list, list, int/str*
+            new grid after put blocks
     '''
     total_type = ['x', 'o', 'A', 'B', 'C']
     assert block_type in total_type, "Can't recognize the block type"
@@ -274,12 +291,16 @@ def check_solve(lazor_list, grid, goal):
     this function checks goals get solved or not
 
     **Parameters**
-        lazor_list: *list*
-                     original lazors positions
-        grid: *list, list*
-               the grid needed to put block
-        goal: *list*
-               all target points need to be hit by the lazor
+        lazor_list: *list, object*
+            original lazors positions
+        grid: *list, list, int/str*
+            the grid with blocks put
+        goal: *list, tuple, int*
+            all target points need to be hit by the lazor
+
+    ** Return**
+        True/False: *bool*
+            True if no goals are unhit
     '''
     for l in lazor_list:
         goal = l.goal_search(grid, goal)
@@ -294,12 +315,12 @@ def putable_b(grid):
     this function puts all available blocks on the grid
 
     **Parameters**
-        grid: *list, list*
-               the grid needed to put block
+        grid: *list, list, int/str*
+            the grid needed to put block
 
     **Return**
-        putable_b: *list, tuple*
-                    positions of all putable blocks
+        putable_b: *list, tuple, int*
+            positions of all putable blocks
     '''
     putable_b = []
     for y in range(len(grid)):
@@ -311,43 +332,41 @@ def putable_b(grid):
 
 def solve_it_by_force(ftpr):
     '''
-    this function solves the game
+    this function solves the game by force.
+    Here we consider in some cases, not all the functional blocks are used.
+    The code search all the posibilities for putting blocks.
 
     **Parameters**
-            fptr: *fptr*
-                  .bff file that needed to read
+        fptr: *fptr*
+            .bff file that needed to read
 
     **Return**
-        grid: *list, list*
-               new grid after solve the game
+        grid: *list, list, int/str*
+            new grid after solve the game
         put_list: *list*
-                   blocks put in the grid
+            blocks put in the grid
+        False: *bool*
+            return false if puzzle can't be solved
     '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
     attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
     put_list = []
+
     while len(put_list) <= block_sum:
         b_pos = []
         b_type_pos = []
         putable_bs = putable_b(grid)
         for t in ['A', 'B', 'C']:
             for bs in putable_bs:
+                # if there are this type of blocks avaliable and
+                # there is postions that haven't tried before
                 if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
                     b_type_pos.append(t)
-        if b_type_pos == [] and put_list != []:
-            (x, y), t = put_list[-1]
-            grid = put_block('o', (x, y), grid)
-            blocks[t] += 1
-            if len(put_list) != block_sum:
-                attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
-            put_list.pop()
 
-        elif b_type_pos == [] and put_list == []:
-            return False
-
-        elif b_type_pos != []:
+        if b_type_pos != []:
             b_type_choice = np.random.choice(b_type_pos)
+            # find out what position haven't been tried before
             b_pos = [b for b in putable_bs
                      if b not in attempt[len(put_list)][b_type_choice]]
             b_choice = b_pos[np.random.randint(0, len(b_pos))]
@@ -355,6 +374,20 @@ def solve_it_by_force(ftpr):
             attempt[len(put_list)][b_type_choice].append(b_choice)
             put_list.append((b_choice, b_type_choice))
             blocks[b_type_choice] -= 1
+
+        elif b_type_pos == [] and put_list != []:
+            (x, y), t = put_list[-1]
+            grid = put_block('o', (x, y), grid)
+            blocks[t] += 1
+            # if no next step is avaliable while not all blocks are put
+            if len(put_list) != block_sum:
+                # re-initialize the attempt dict for the last step
+                attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
+            put_list.pop()
+
+        # if putlist is empty, no solution can be generated by this code
+        elif b_type_pos == [] and put_list == []:
+            return False
 
         if len(put_list) == block_sum:
             solve = check_solve(lazors, grid, goal)
@@ -368,70 +401,83 @@ def solve_it_by_force(ftpr):
 
 def solve_it_smart(ftpr):
     '''
-    this function solves the game
+    this function solves the game in a smart way
+    The code puts all the funcional block in their functional positions
 
     **Parameters**
-            fptr: *fptr*
-                  .bff file that needed to read
+        fptr: *fptr*
+            .bff file that needed to read
 
     **Return**
-        grid: *list, list*
-               new grid after solve the game
+        grid: *list, list, int/str*
+            new grid after solve the game
         put_list: *list*
-                   blocks put in the grid
+            blocks put in the grid
+        False: *bool*
+            return False if the puzzle can't be solved
     '''
     grid, blocks, lazors, goal = read_puzzle(ftpr)
     block_sum = sum(blocks[b] for b in blocks)
+    # list of visited position distingushed by block type
     attempt = [{'A': [], 'B': [], 'C': []} for i in range(block_sum)]
     put_list = []
 
     while len(put_list) <= block_sum:
+        # find all the blocks lazors cross
         cross_block = [b for l in lazors for
                        b in l.return_block_point_cross(grid)[0]]
 
         b_type_pos = []
         for t in ['A', 'C']:
             for bs in cross_block:
+                # if the type of block is avaliable and
+                # has not tried in certain position before
                 if blocks[t] != 0 and bs not in attempt[len(put_list)][t]:
                     b_type_pos.append(t)
         if blocks['B'] != 0:
             b_pos_for_b = []
             putable_bs = putable_b(grid)
             for bs in putable_bs:
+                # if there is any position in the grid not tried by B
                 if bs not in attempt[len(put_list)]['B']:
                     b_pos_for_b.append(bs)
             if b_pos_for_b != []:
                 b_type_pos.append('B')
 
-        if b_type_pos == [] and put_list != []:
-            (x, y), t = put_list[-1]
-            grid = put_block('o', (x, y), grid)
-            blocks[t] += 1
-            if len(put_list) != block_sum:
-                attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
-            put_list.pop()
-
-        elif b_type_pos == [] and put_list == []:
-            return False
-
-        elif b_type_pos != []:
+        if b_type_pos != []:
             b_type_choice = np.random.choice(b_type_pos)
-
             if b_type_choice != 'B':
                 b_pos = [b for b in cross_block
                          if b not in attempt[len(put_list)][b_type_choice]]
                 b_choice = b_pos[np.random.randint(0, len(b_pos))]
             elif b_type_choice == 'B':
-                b_choice = b_pos_for_b[np.random.randint(
-                    0,
-                    len(b_pos_for_b)
-                    )]
+                b_choice = b_pos_for_b[
+                    np.random.randint(0, len(b_pos_for_b))
+                    ]
 
             grid = put_block(b_type_choice, b_choice, grid)
             attempt[len(put_list)][b_type_choice].append(b_choice)
             put_list.append((b_choice, b_type_choice))
             blocks[b_type_choice] -= 1
 
+        # for whatever reason there is no avaliable type of blocks to put
+        # undo the last step
+        elif b_type_pos == [] and put_list != []:
+            (x, y), t = put_list[-1]
+            grid = put_block('o', (x, y), grid)
+            blocks[t] += 1
+            # if no avaliable type happen before all avaliable blocks are put
+            if len(put_list) != block_sum:
+                # undo the last visit list
+                attempt[len(put_list)] = {'A': [], 'B': [], 'C': []}
+            put_list.pop()
+
+        # if put_list is empty, it means that
+        # no possible solution can be generated by this funciton
+        elif b_type_pos == [] and put_list == []:
+            return False
+
+        # after all the blocks are put, examine if the puzzle is solved
         if len(put_list) == block_sum:
             solve = check_solve(lazors, grid, goal)
             if solve:
@@ -448,8 +494,8 @@ def solve_puzzle(ftpr):
     use the other way. Also records the time spend
 
     **Parameters**
-            fptr: *fptr*
-                  .bff file that needed to read
+        fptr: *fptr*
+            .bff file that needed to read
     '''
     t1 = time.time()
     solve = solve_it_smart(ftpr)
