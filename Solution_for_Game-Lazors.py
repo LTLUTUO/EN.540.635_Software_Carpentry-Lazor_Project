@@ -488,7 +488,7 @@ def solve_it_smart(ftpr):
                 continue
 
 
-def solve_puzzle(ftpr):
+def solve_puzzle():
     '''
     this function solves the game by using smart way first, if it does not work
     use the other way. Also records the time spend
@@ -498,7 +498,9 @@ def solve_puzzle(ftpr):
             .bff file that needed to read
     '''
     t1 = time.time()
-    solve = solve_it_smart(ftpr)
+    print("Please in put your file name, coated with \" \"")
+    puzzle = input()
+    solve = solve_it_smart(puzzle)
     if not solve:
         solve = solve_it_by_force(ftpr)
         if not solve:
@@ -511,4 +513,4 @@ def solve_puzzle(ftpr):
 
 
 if __name__ == '__main__':
-    s = solve_puzzle('template/yarn_5.bff')
+    solve_puzzle()
