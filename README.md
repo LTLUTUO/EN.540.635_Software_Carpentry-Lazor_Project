@@ -1,50 +1,62 @@
 # EN.540.635_Software_Carpentry-Lazor_Project
-This Lazor Project is for EN.540.635_Software_Carpentry class.
 
-The goal of the project:<br>
+This is a Project for EN.540.635_Software_Carpentry class.
+
+## Goal of the Project
 Write a program that will automatically find solutions to the “Lazors” game on Android and iPhone.
 
-User instructions:<br>
-Before starting:<br>
-*You need to have python to use this solver.<br>
-*You also need to have unsolved lazor game in .bff file format.<br>
-Solving:<br>
-*Open Solution_for_Game-Lazors.py<br>
-*Scroll down to the last line of code, change the filename in '' to the filename which you want to solve<br>
-*Run the code<br>
-*Done! (the code will create a new solution_txt which contains the solution of the game)<br>
+## User Instructions
+### Before Starting
+* You need to have python to use this solver.
+* You also need to have unsolved lazor game in .bff file format that discribe the current situation of the game you are solving. See sample solution for more information.
+### Solving:
+* Place the Solution_for_Game-Lazors.py under the same folder as your .bff file.
+* Open Solution_for_Game-Lazors.py in terminal or double click the code file.
+* Type in your file name coated with "" and hit enter! For example: "yarn_5.bff"
+* Done! (the code will create a new solution.txt which contains the solution of the game)
 
-Sample solution:<br>
-Before: <br>
-GRID START<br>
-o B x o o<br>
-o o o o o<br>
-o x o o o<br>
-o x o o x<br>
-o o x x o<br>
-B o x o o<br>
-GRID STOP<br>
+## Sample Solution
+### Content of .bff File
+#### Elements
+* Grid message framed with "GRID START" and "GRID STOP"
+* Type and number of blocks you need to put
+* Lazors with posiiton and direction.
+* Target positions.
 
-A 8 (8 reflect blocks)<br>
+### Sample .bff File
 
-L 4 1 1 1 (Lazor with position （4，1）, direction (1,1))<br>
+GRID START
+o B x o o
+o o o o o
+o x o o o
+o x o o x
+o o x x o
+B o x o o
+GRID STOP
 
-P 6 9 (target point with position (6,9))<br>
-P 9 2 (target point with position (9,2))<br>
+A 8
+#8 reflection blocks
 
-After:<br>
-o B x o o<br>
-o A o o o<br>
-A x o o A<br>
-o x A o x<br>
-A o x x A<br>
-B A x A o<br>
+L 4 1 1 1 
+#Lazor with position （4，1）, direction (1,1))
 
-Notations:<br>
-  > o: vacant position<br>
-  > x: no block allowed position<br>
-  > A: reflect block<br>
-  > B: opaque block<br>
-  > C: refract block<br>
-  > L: lazor position with direction<br>
-  > P: target point<br>
+P 6 9
+P 9 2
+#target point with position (6,9) and (9,2)
+
+### Sample Solution .txt file
+o B x o o
+o A o o o
+A x o o A
+o x A o x
+A o x x A
+B A x A o
+
+### Notations
+  > o: vacant position
+  > x: no block allowed position
+  > A: reflect block
+  > B: opaque block
+  > C: refract block
+  > L: lazor position with direction
+  > P: target point
