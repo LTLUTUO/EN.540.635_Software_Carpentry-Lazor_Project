@@ -25,38 +25,38 @@ Write a program that will automatically find solutions to the “Lazors” game 
 
 ### Sample .bff File
 
-GRID START
-o B x o o
-o o o o o
-o x o o o
-o x o o x
-o o x x o
-B o x o o
-GRID STOP
+GRID START<br>
+o B x o o<br>
+o o o o o<br>
+o x o o o<br>
+o x o o x<br>
+o o x x o<br>
+B o x o o<br>
+GRID STOP<br>
 
-A 8
-#8 reflection blocks
+A 8<br>
+#8 reflection blocks<br>
 
-L 4 1 1 1 
-#Lazor with position （4，1）, direction (1,1))
+L 4 1 1 1 <br>
+#Lazor with position （4，1）, direction (1,1))<br>
 
-P 6 9
-P 9 2
-#target point with position (6,9) and (9,2)
+P 6 9<br>
+P 9 2<br>
+#target point with position (6,9) and (9,2)<br>
 
 ### Sample Solution .txt file
-o B x o o
-o A o o o
-A x o o A
-o x A o x
-A o x x A
-B A x A o
+o B x o o<br>
+o A o o o<br>
+A x o o A<br>
+o x A o x<br>
+A o x x A<br>
+B A x A o<br>
 
 ### Notations
-  > o: vacant position
-  > x: no block allowed position
-  > A: reflect block
-  > B: opaque block
-  > C: refract block
-  > L: lazor position with direction
-  > P: target point
+  > o: vacant position<br>
+  > x: no block allowed position<br>
+  > A: reflect block<br>
+  > B: opaque block<br>
+  > C: refract block<br>
+  > L: lazor position with direction<br>
+  > P: target point<br>
